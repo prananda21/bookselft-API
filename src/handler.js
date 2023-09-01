@@ -83,18 +83,115 @@ const addBookHandler = (request, h) => {
 };
 
 // handler dengan method GET untuk melihat semua buku
-const getAllBooksHandler = () => ({
-  status: 'success',
-  data: {
-    bookself,
-  },
-});
+const getAllBooksHandler = (request, h) => {
+  const {name, reading, finished} = request.query;
+
+  if (name) {
+    const filterName = name.toLowerCase();
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookself
+            .filter((n) => n.name === filterName)
+            .map((books) => ({
+              id: books.id,
+              name: books.name,
+              publisher: books.publisher,
+            })),
+      },
+    });
+    response.code(200);
+    return response;
+  };
+
+  if (reading === '0') {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookself
+            .filter((n) => n.reading === false)
+            .map((books) => ({
+              id: books.id,
+              name: books.name,
+              publisher: books.publisher,
+            })),
+      },
+    });
+    response.code(200);
+    return response;
+  };
+
+  if (reading === '1') {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookself
+            .filter((n) => n.reading === true)
+            .map((books) => ({
+              id: books.id,
+              name: books.name,
+              publisher: books.publisher,
+            })),
+      },
+    });
+    response.code(200);
+    return response;
+  };
+
+  if (finished === '0') {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookself
+            .filter((n) => n.finished === false)
+            .map((books) => ({
+              id: books.id,
+              name: books.name,
+              publisher: books.publisher,
+            })),
+      },
+    });
+    response.code(200);
+    return response;
+  };
+
+  if (finished === '1') {
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: bookself
+            .filter((n) => n.finished === true)
+            .map((books) => ({
+              id: books.id,
+              name: books.name,
+              publisher: books.publisher,
+            })),
+      },
+    });
+    response.code(200);
+    return response;
+  };
+
+  const response = h.response({
+    status: 'success',
+    data: {
+      books: bookself.map((n) => ({
+        id: n.id,
+        name: n.name,
+        publisher: n.publisher,
+      })),
+    },
+  });
+  response.code(200);
+  return response;
+};
+
 
 // handler dengan method GET untuk melihat buku sesuai id
 const getBookByIdHandler = (request, h) => {
-  const {id} = request.params;
+  const {bookId} = request.params;
 
-  const book = bookself.filter((n) => n.id === id)[0];
+  const book = bookself.filter((n) => n.id === bookId)[0];
   if (book !== undefined) {
     return {
       status: 'success',
@@ -114,7 +211,7 @@ const getBookByIdHandler = (request, h) => {
 
 // handler dengan method PUT untuk mengubah data buku sesuai id
 const editByIdBookHandler = (request, h) => {
-  const {id} = request.params;
+  const {bookId} = request.params;
   const {
     name,
     year,
@@ -144,12 +241,11 @@ const editByIdBookHandler = (request, h) => {
   };
 
   const updatedAt = new Date().toISOString();
-  const finished = (pageCount === readPage);
-  const index = bookself.findIndex((book) => book.id === id);
+  const index = bookself.findIndex((book) => book.id === bookId);
 
   if (index !== -1) {
     bookself[index] = {
-      ...books[index],
+      ...bookself[index],
       name,
       year,
       author,
@@ -157,7 +253,6 @@ const editByIdBookHandler = (request, h) => {
       publisher,
       pageCount,
       readPage,
-      finished,
       reading,
       updatedAt,
     };
@@ -179,8 +274,8 @@ const editByIdBookHandler = (request, h) => {
 
 // handler dengan method DELETE untuk menghapus buku sesuai id
 const deleteBookByIdHandler = (request, h) => {
-  const {id} = request.params;
-  const index = bookself.findIndex((book) => book.id === id);
+  const {bookId} = request.params;
+  const index = bookself.findIndex((book) => book.id === bookId);
 
   if (index !== -1) {
     bookself.splice(index, 1);
